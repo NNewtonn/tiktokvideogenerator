@@ -6,6 +6,7 @@ import apis
 import random
 from freesounddownload import sound_filename
 import promptsrequest
+from datetime import datetime
 
 # API keys
 API_KEY_PEXELS = apis.api_key_pexels
@@ -14,13 +15,14 @@ API_KEY_PEXELS = apis.api_key_pexels
 
 
 # Function to search for videos on Pexels
-def search_videos(query, per_page=1):
+def search_videos(query, per_page):
     url = 'https://api.pexels.com/videos/search'
     headers = {
         'Authorization': API_KEY_PEXELS
     }
     params = {
         'query': query,
+        'page' : random.randint(1,7),
         'per_page': per_page,
         'size' : 'medium',
         'orientation': 'portrait'
@@ -39,12 +41,15 @@ def download_video(url, filepath):
 
 # Search for videos
 query = 'background ' + promptsrequest.daily_emotion
-videos = search_videos(query, per_page=1)
+videos = search_videos(query, per_page=15)
 promptsrequest.request_chatgpt()
 # Download the first video in the results
+print(len(videos))
 if 'videos' in videos:
-    video = videos['videos'][0]
-    video_url = video['video_files'][0]['link']
+    random_video = random.randint(0, len(videos)-1)
+    video = videos['videos'][random_video]
+    print(random_video)
+    video_url = video['video_files'][random_video]['link']
     video_filename = os.path.join('downloads', f"{video['id']}.mp4")
     
     # Create downloads directory if it doesn't exist
@@ -75,22 +80,38 @@ if 'videos' in videos:
     print("Audio duration")
 
     print(audio_duration)
-    # Loop the audio to match the video duration
-    audio_clips = [audio_clip] * audio_repeats
-    final_audio_clip = concatenate_audioclips(audio_clips)
-
-    # Trim audio to match the video duration
-    final_audio_clip = final_audio_clip.subclip(0, video_clip.duration)
-
-    # Set the audio to the video
-    final_clip = video_clip.set_audio(final_audio_clip)
 
     # If video duration is less than 30 seconds, concatenate enough times to reach 30 seconds
     if video_duration < 30:
         repeats_needed = int(30 / video_duration) + 1
-        final_clip = concatenate_videoclips([final_clip] * repeats_needed)
+        final_clip = concatenate_videoclips([video_clip] * repeats_needed)
+        print(concatenate_videoclips)
+    # Loop the audio to match the video duration
+    if (audio_duration < video_duration):
+        audio_clips = [audio_clip] * audio_repeats
+        final_audio_clip = concatenate_audioclips(audio_clips)
+
+    # Trim audio to match the video duration
+    final_audio_clip = audio_clip.subclip(0, video_clip.duration)
+    
+    # Set the audio to the video
+    final_clip = video_clip.set_audio(final_audio_clip)
+
+    # Get the current date and time
+    current_datetime = datetime.now()
+
+    # Format the current date and time as a single string of numbers
+    datetime_string = current_datetime.strftime('%Y%m%d%H%M%S')
     # Write the final video to a file
-    final_clip.write_videofile("final_output.mp4", fps=30)
+    # Check if the folder exists
+    if not os.path.exists("finished_videos"):
+        # If the folder does not exist, create it
+        os.makedirs("finished_videos")
+        print("Folder finished_videos created.")
+    else:
+        print("Folder finished_videos already exists.")
+
+    final_clip.write_videofile("finished_videos/final_output"+ datetime_string +".mp4", fps=30)
 else:
     print('No videos found')
 

@@ -2,7 +2,7 @@ import requests
 import os
 import apis
 import promptsrequest
-
+import random
 
 # API keys
 API_KEY = apis.api_key_freesound
@@ -16,7 +16,8 @@ def search_sounds(query, num_results=1):
     params = {
         'query': query,
         'fields': 'id,name,previews',
-        'page_size': num_results
+        'page_size': num_results,
+        'duration' : 36
     }
     response = requests.get(url, headers=headers, params=params)
     return response.json()
@@ -35,8 +36,9 @@ query = 'background music ' + promptsrequest.daily_emotion
 sounds = search_sounds(query, num_results=1)
 
 # Download the first sound in the results
-if 'results' in sounds and len(sounds['results']) > 0:
-    sound = sounds['results'][0]
+quantity_sounds = len(sounds['results'])
+if 'results' in sounds and quantity_sounds > 0:
+    sound = sounds['results'][random.randint(0, quantity_sounds-1)]
     sound_url = sound['previews']['preview-lq-mp3']
     sound_filename = os.path.join('downloads', f"{sound['id']}_{sound['name']}.mp3")
     

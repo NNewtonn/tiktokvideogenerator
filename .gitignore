@@ -1,2 +1,4 @@
 apis.py
-__pycache__
+__pycache__/
+downloads/
+finished_videos/

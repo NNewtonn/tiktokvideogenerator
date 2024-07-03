@@ -14,7 +14,7 @@ print(daily_emotion)
 def request_chatgpt():
     response = openai.Completion.create(
         model="gpt-3.5-turbo-instruct",
-        prompt="Give me a 250 character poem that relates to the feeling of: " + daily_emotion,
+        prompt="Give me a good quote: " + daily_emotion,
         max_tokens=150
     )
     print("Respuesta de ChatGPT:")
