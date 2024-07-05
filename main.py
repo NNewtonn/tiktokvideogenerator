@@ -12,8 +12,6 @@ from datetime import datetime
 API_KEY_PEXELS = apis.api_key_pexels
 
 
-
-
 # Function to search for videos on Pexels
 def search_videos(query, per_page):
     url = 'https://api.pexels.com/videos/search'
@@ -22,15 +20,17 @@ def search_videos(query, per_page):
     }
     params = {
         'query': query,
-        'page' : random.randint(1,7),
+        'page': random.randint(1, 7),
         'per_page': per_page,
-        'size' : 'medium',
+        'size': 'medium',
         'orientation': 'portrait'
     }
     response = requests.get(url, headers=headers, params=params)
     return response.json()
 
 # Function to download a video
+
+
 def download_video(url, filepath):
     response = requests.get(url, stream=True)
     with open(filepath, 'wb') as file:
@@ -38,6 +38,7 @@ def download_video(url, filepath):
             if chunk:
                 file.write(chunk)
     print(f'Video downloaded: {filepath}')
+
 
 # Search for videos
 query = 'background ' + promptsrequest.daily_emotion
@@ -51,10 +52,10 @@ if 'videos' in videos:
     print(random_video)
     video_url = video['video_files'][random_video]['link']
     video_filename = os.path.join('downloads', f"{video['id']}.mp4")
-    
+
     # Create downloads directory if it doesn't exist
     os.makedirs(os.path.dirname(video_filename), exist_ok=True)
-    
+
     # Download the video
     download_video(video_url, video_filename)
 
@@ -93,7 +94,7 @@ if 'videos' in videos:
 
     # Trim audio to match the video duration
     final_audio_clip = audio_clip.subclip(0, video_clip.duration)
-    
+
     # Set the audio to the video
     final_clip = video_clip.set_audio(final_audio_clip)
 
@@ -111,7 +112,7 @@ if 'videos' in videos:
     else:
         print("Folder finished_videos already exists.")
 
-    final_clip.write_videofile("finished_videos/final_output"+ datetime_string +".mp4", fps=30)
+    final_clip.write_videofile(
+        "finished_videos/final_output" + datetime_string + ".mp4", fps=30)
 else:
     print('No videos found')
-
